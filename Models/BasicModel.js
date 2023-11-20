@@ -5,6 +5,8 @@ const pool= mysql.createConnection({
     user:"root",
     password:"",
     database:"college",
-
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
 })
 module.exports={pool}

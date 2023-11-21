@@ -35,7 +35,8 @@ tDetails.get("/teacherprofile",async(req,res)=>{
 tDetails.post("/add", async (req, res) => {
     const { name, email, department, salary, gender, user_id } = req.body;
     // console.log(name, email, salary, gender, department, user_id);
-const data=await pool.promise().query("SELECT * FROM teacherdetails WHERE user_id=?",[user_id])
+const [data]=await pool.promise().query("SELECT * FROM teacherdetails WHERE user_id=?",[user_id])
+// console.log(data)
 if(data.length==0){
     try {
         const [results] = await pool.promise().query("SELECT * FROM teacherdetails");

@@ -4,13 +4,14 @@ const { pool } = require('../Models/BasicModel');
 const jwt=require("jsonwebtoken");
 const UserRouter = express.Router();
 
+// *get request*
 UserRouter.get('/data', async (req, res) => {
   try {
     const { limit, page, sortby, order } = req.query;
     const offset = (page - 1) * limit;
     let alldata = 0;
 
-    const [countResult] = await pool.query('SELECT COUNT(name) FROM teacher');
+    const [countResult] = await pool.promise().query('SELECT COUNT(name) FROM teacher');
     alldata = countResult[0]['COUNT(name)'];
 
     let query = 'SELECT * FROM teacher';
@@ -23,7 +24,7 @@ UserRouter.get('/data', async (req, res) => {
       query += ` LIMIT ${+limit} OFFSET ${+offset}`;
     }
 
-    const [results] = await pool.query(query);
+    const [results] = await pool.promise().query(query);
     res.status(200).json({ results, totalPages: limit && page && Math.ceil(alldata / +limit) });
   } catch (err) {
     console.error(err);
@@ -31,6 +32,8 @@ UserRouter.get('/data', async (req, res) => {
   }
 });
 
+
+// *REgistration*
 UserRouter.post('/register', async (req, res) => {
   const { name, email, dept_id, password } = req.body;
 
@@ -62,11 +65,15 @@ UserRouter.post('/register', async (req, res) => {
     res.status(400).json({msg:"Please provide the details"})
   }
 });
+
+// ************Login********************
 UserRouter.post("/login",async(req,res)=>{
 const {email,password}=req.body
+// console.log(email,password)
 const [userdata]=await pool.promise().query("SELECT * FROM teacher WHERE email=?",[email])
+
 // console.log(userdata)
-console.log(userdata)
+// console.log(userdata)
 if(email&&password){
 
 
@@ -76,7 +83,7 @@ if(userdata.length>=1){
             // result == true
            if(result){
             var token = jwt.sign({ user_id:userdata[0].id }, 'sgate');
-            res.status(200).json({msg:"Login Successfully",usertoken:token,name:userdata[0].name,useremail:userdata[0].email,
+            res.status(200).json({msg:"Login Successfully",usertoken:token,username:userdata[0].name,useremail:userdata[0].email,
         dept_id:userdata[0].dept_id})
            }else{
             res.status(400).json("Please Provide right Password")
@@ -94,6 +101,7 @@ else{
 
 })
 
+// *Delete*******************************
 UserRouter.delete("/delete/:id",(req,res)=>{
     const {id}=req.params
     try{

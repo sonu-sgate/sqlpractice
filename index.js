@@ -14,7 +14,9 @@ app.use((req, res, next) => {
   // res.status(200).json({msg:pool})
   next();
 });
-
+app.get("/",(req,res)=>{
+    res.status(200).json({msg:"Welcome to Backend"})
+})
 app.use("/teacher", UserRouter);
 app.use("/profile", auth, tDetails);
 app.listen(3000, async() => {

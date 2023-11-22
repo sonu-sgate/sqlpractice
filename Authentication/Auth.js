@@ -7,6 +7,7 @@ const auth=(req,res,next)=>{
         jwt.verify(token.split(" ")[1], 'sgate', function(err, decoded) {
             if(decoded){
                 req.body.user_id=decoded.user_id
+                req.body.dept_id=decoded.dept_id
                 next()
             }else{
                 res.status(400).json({msg:"Token expired/login again"})

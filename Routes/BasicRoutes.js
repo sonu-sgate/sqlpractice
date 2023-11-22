@@ -82,7 +82,7 @@ if(userdata.length>=1){
         bcrypt.compare(password, userdata[0].password, function(err, result) {
             // result == true
            if(result){
-            var token = jwt.sign({ user_id:userdata[0].id }, 'sgate');
+            var token = jwt.sign({ user_id:userdata[0].id ,dept_id:userdata[0].dept_id}, 'sgate');
             res.status(200).json({msg:"Login Successfully",usertoken:token,username:userdata[0].name,useremail:userdata[0].email,
         dept_id:userdata[0].dept_id})
            }else{
@@ -102,6 +102,7 @@ else{
 })
 
 // *Delete*******************************
+
 UserRouter.delete("/delete/:id",(req,res)=>{
     const {id}=req.params
     try{
@@ -129,11 +130,11 @@ UserRouter.patch("/altertable",(req,res)=>{
 })
 
 UserRouter.patch("/alterdetailtable",(req,res)=>{
-    pool.query("ALTER TABLE teacherdetails ADD COLUMN user_id INT ",((error,results)=>{
+    pool.query(" ALTER TABLE teacherdetails  ADD CONSTRAINT fk_teacherdetails_teacher FOREIGN KEY (user_id) REFERENCES teacher(id) ON DELETE CASCADE",((error,results)=>{
 if(error){
     res.status(400).json({msg:error})
 }else{
-    res.status(200).json({msg:"Columm ADDED"})
+    res.status(200).json({msg:results})
 }
     }))
 
@@ -154,6 +155,25 @@ UserRouter.patch("/edit/:id",(req,res)=>{
     }catch(err){
         res.status(400).json({msg:err})
     }
+})
+UserRouter.delete("/deleteuser/:id",async(req,res)=>{
+const {id}=req.params
+const [data]=await pool.promise().query('DELETE FROM teacher WHERE id=?',[id])
+
+try{
+    pool.query('DELETE FROM teacher WHERE id=?',[id],(error,results)=>{
+        if(error){
+            res.status(400).json({msg:error})
+        }else{
+            res.status(200).json({msg:"Deleted Successfully"})
+        }
+    })
+}catch(err){
+    res.status(400).json({msg:err})
+}
+
+
+
 })
 
 module.exports={UserRouter}

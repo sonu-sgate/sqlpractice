@@ -4,6 +4,7 @@ const { pool } = require("./Models/BasicModel");
 const { UserRouter } = require("./Routes/BasicRoutes");
 const { auth } = require("./Authentication/Auth");
 const { tDetails } = require("./Routes/DetailRoutes");
+const { notesRouter } = require("./Routes/Notes");
 
 const app = express();
 app.use(cors());
@@ -19,6 +20,7 @@ app.get("/",(req,res)=>{
 })
 app.use("/teacher", UserRouter);
 app.use("/profile", auth, tDetails);
+app.use("/notes",auth,notesRouter)
 app.listen(3000, async() => {
     try{
        pool.connect((error)=>{

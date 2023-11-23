@@ -71,9 +71,6 @@ UserRouter.post("/login",async(req,res)=>{
 const {email,password}=req.body
 // console.log(email,password)
 const [userdata]=await pool.promise().query("SELECT * FROM teacher WHERE email=?",[email])
-
-// console.log(userdata)
-// console.log(userdata)
 if(email&&password){
 
 

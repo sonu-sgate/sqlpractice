@@ -32,30 +32,48 @@ console.log(title,"tiltle")
     
     let query=`SELECT * FROM notes WHERE user_id=${user_id} `
 let queryvalue=[]
-    if(title){
-        const titlePattern = `%${title.split('').join('%')}%`;
-        console.log(titlePattern)
-                query+=`AND title LIKE ?`
-                queryvalue.push(titlePattern)
-    }
-    if(created_at){
-        query+=`AND created_at=?`+" "
-        queryvalue.push(created_at)
-    }
-    if(sortby&&order){
-        query+=`ORDER BY ${sortby} ${order} `+" "
-    }
-    if(page&&limit){
-        let offset=(page-1)*limit
-        query+=`LIMIT ${limit} OFFSET ${offset}`+" "
-    }
-    try{
-        const [data] = await pool.promise().query(query,queryvalue);
+if (title) {
+    const titlePattern = `%${title.split('').join('%')}%`;
+    query += ` AND title LIKE ${titlePattern}`;
+}
 
-res.status(200).json({msg:data})
+// Check for the existence of the created_at parameter
+if (created_at) {
+    query += ` AND created_at = ${created_at}`;
+}
+
+// Check for the existence of sortby and order parameters
+if (sortby && order) {
+    query += ` ORDER BY ${sortby} ${order}`;
+}
+
+// Check for the existence of page and limit parameters
+if (page && limit) {
+    let offset = (page - 1) * limit;
+    query += ` LIMIT ${limit} OFFSET ${offset}`;
+}
+
+    if(limit&&page){
+        try{
+            const [alldata]=await pool.promise().query("SELECT COUNT(title) FROM notes WHERE user_id=?",[user_id])
+         
+     
+                const [data]=await pool.promise().query(query)
+                // console.log(data)
+                res.status(200).json({msg:data,totalPages:Math.ceil(+(alldata[0]["COUNT(title)"])/limit)})
+            
+           
+     
+    
+   
     }catch(err){
-        res.status(400).json({msg:err})
+        res.status(400).json({msg:"something going wrong"})
     }
+}else{
+    { const [data] = await pool.promise().query(query);
+
+        res.status(200).json({msg:data})}
+}
     // req.status()
 })
 module.exports={notesRouter}

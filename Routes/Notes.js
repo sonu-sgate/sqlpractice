@@ -26,7 +26,7 @@ pool.query("INSERT INTO notes (title,description,user_id) VALUES(?,?,?)",[title,
 notesRouter.get("/getnotes",async(req,res)=>{
 
     const {user_id}=req.body
-const {title,created_at,sortby,order}=req.query
+const {title,created_at,sortby,order,page,limit}=req.query
 console.log("createdat",created_at)
 console.log(title,"tiltle")
     
@@ -43,7 +43,11 @@ let queryvalue=[]
         queryvalue.push(created_at)
     }
     if(sortby&&order){
-        query+=`ORDER BY ${sortby} ${order}`
+        query+=`ORDER BY ${sortby} ${order} `+" "
+    }
+    if(page&&limit){
+        let offset=(page-1)*limit
+        query+=`LIMIT ${limit} OFFSET ${offset}`+" "
     }
     try{
         const [data] = await pool.promise().query(query,queryvalue);

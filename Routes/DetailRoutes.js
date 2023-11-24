@@ -101,7 +101,7 @@ tDetails.patch("/edit/:id",async(req,res)=>{
 // //  res.status(200).json({msg:userdata})
 // console.log(userdata.user_id,user_id)
  if(userdata[0].user_id==user_id){
-    console.log(query)
+
     pool.query(`${query} WHERE id=?`,[+id],(error,results)=>{
         if(error){
             

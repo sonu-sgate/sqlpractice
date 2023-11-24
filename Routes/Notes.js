@@ -23,6 +23,9 @@ pool.query("INSERT INTO notes (title,description,user_id) VALUES(?,?,?)",[title,
     }
 })
 
+
+
+// getting notes data
 notesRouter.get("/getnotes",async(req,res)=>{
 
     const {user_id}=req.body
@@ -31,15 +34,20 @@ console.log("createdat",created_at)
 console.log(title,"tiltle")
     
     let query=`SELECT * FROM notes WHERE user_id=${user_id} `
-let queryvalue=[]
+
+let queryValues = [];
+
+// Check for the existence of the title parameter
 if (title) {
     const titlePattern = `%${title.split('').join('%')}%`;
-    query += ` AND title LIKE ${titlePattern}`;
+    query += " AND title LIKE ?";
+    queryValues.push(titlePattern);
 }
 
 // Check for the existence of the created_at parameter
 if (created_at) {
-    query += ` AND created_at = ${created_at}`;
+    query += " AND created_at = ?";
+    queryValues.push(created_at);
 }
 
 // Check for the existence of sortby and order parameters
@@ -52,27 +60,64 @@ if (page && limit) {
     let offset = (page - 1) * limit;
     query += ` LIMIT ${limit} OFFSET ${offset}`;
 }
-
+// console.log(queryValues)
     if(limit&&page){
-        try{
-            const [alldata]=await pool.promise().query("SELECT COUNT(title) FROM notes WHERE user_id=?",[user_id])
+        console.log(queryValues,"queries valuess")
+        if(queryValues.length>=1){
+     
+            try{
+                const [alldata]=await pool.promise().query("SELECT COUNT(title) FROM notes WHERE user_id=?",[user_id])
+             
          
-     
-                const [data]=await pool.promise().query(query)
-                // console.log(data)
-                res.status(200).json({msg:data,totalPages:Math.ceil(+(alldata[0]["COUNT(title)"])/limit)})
-            
-           
-     
-    
-   
-    }catch(err){
-        res.status(400).json({msg:"something going wrong"})
-    }
-}else{
-    { const [data] = await pool.promise().query(query);
+                    const [data]=await pool.promise().query(query,queryValues)
+                    // console.log(data)
+                    res.status(200).json({msg:data,totalPages:Math.ceil(+(alldata[0]["COUNT(title)"])/limit)})
+                
+               
+         
+        
+       
+        }catch{
+                res.status(400).json({msg:"something going wrong"})
+            }
+        }else{
+            try{
+                console.log(queryValues,"else")
+                const [alldata]=await pool.promise().query("SELECT COUNT(title) FROM notes WHERE user_id=?",[user_id])
+             
+         
+                    const [data]=await pool.promise().query(query)
+                    // console.log(data)
+                    res.status(200).json({msg:data,totalPages:Math.ceil(+(alldata[0]["COUNT(title)"])/limit)})
+                
+               
+         
+        
+       
+        }catch(err){
+            res.status(400).json({msg:"something going wrong"})
+        }
 
-        res.status(200).json({msg:data})}
+
+        }
+     
+}else{
+    console.log(queryValues,"final")
+    console.log("query",query)
+    try{
+
+    
+    if(queryValues.length>=1){
+        const [data] = await pool.promise().query(query,queryValues);
+
+        res.status(200).json({msg:data})
+    }else{
+        const [data]=pool.promise().query(query)
+        res.status(200).json({msg:data})
+    }}catch(err){
+        res.status(400).json({msg:"Something going wrong"})
+    }
+   
 }
     // req.status()
 })

@@ -2,6 +2,7 @@
 var jwt = require('jsonwebtoken');
 const auth=(req,res,next)=>{
     const token=req.headers.authorization;
+    // console.log(token,"tken")
     // console.log(token.split(" ")[0])
     if(token){
         jwt.verify(token.split(" ")[1], 'sgate', function(err, decoded) {

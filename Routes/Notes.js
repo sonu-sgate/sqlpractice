@@ -30,8 +30,8 @@ notesRouter.get("/getnotes",async(req,res)=>{
 
     const {user_id}=req.body
 const {title,created_at,sortby,order,page,limit}=req.query
-console.log("createdat",created_at)
-console.log(title,"tiltle")
+// console.log("createdat",created_at)
+// console.log(title,"tiltle")
     
     let query=`SELECT * FROM notes WHERE user_id=${user_id} `
 
@@ -82,7 +82,7 @@ if (page && limit) {
             }
         }else{
             try{
-                console.log(queryValues,"else")
+                // console.log(queryValues,"else")
                 const [alldata]=await pool.promise().query("SELECT COUNT(title) FROM notes WHERE user_id=?",[user_id])
              
          
@@ -102,8 +102,8 @@ if (page && limit) {
         }
      
 }else{
-    console.log(queryValues,"final")
-    console.log("query",query)
+    // console.log(queryValues,"final")
+    // console.log("query",query)
     try{
 
     
@@ -112,7 +112,8 @@ if (page && limit) {
 
         res.status(200).json({msg:data})
     }else{
-        const [data]=pool.promise().query(query)
+        const [data]=await pool.promise().query(query)
+        // console.log("querynew",query)
         res.status(200).json({msg:data})
     }}catch(err){
         res.status(400).json({msg:"Something going wrong"})
